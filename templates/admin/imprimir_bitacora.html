@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Bitácora - {{ bitacora.titulo }}</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; color: #333; line-height: 1.5; margin: 40px auto; max-width: 900px; }
+        .header { text-align: center; border-bottom: 3px solid #1a365d; padding-bottom: 15px; margin-bottom: 30px; }
+        .header h1 { color: #1a365d; margin: 0; font-size: 26px; text-transform: uppercase; }
+        .header p { margin: 5px 0; color: #555; font-size: 16px; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; vertical-align: top; }
+        th { background-color: #f4f7f6; color: #1a365d; font-weight: bold; }
+
+        .totales { margin-top: 20px; text-align: right; font-weight: bold; font-size: 16px; color: #1a365d; }
+
+        .firmas { margin-top: 100px; display: flex; justify-content: space-between; text-align: center; padding: 0 50px; }
+        .firma-linea { border-top: 1px solid #333; width: 250px; margin-bottom: 8px; }
+        .firma-texto { font-weight: bold; color: #333; margin: 0; }
+        .firma-sub { font-size: 12px; color: #666; margin: 0; }
+
+        /* Estilos ocultos al imprimir */
+        .controles { text-align: right; margin-bottom: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px; }
+        .btn { padding: 10px 20px; color: white; border: none; cursor: pointer; border-radius: 5px; font-weight: bold; font-size: 14px; }
+        .btn-print { background: #2b6cb0; }
+        .btn-back { background: #718096; margin-left: 10px; }
+
+        @media print {
+            body { margin: 0; max-width: 100%; }
+            .controles { display: none; }
+            @page { margin: 1.5cm; }
+        }
+    </style>
+</head>
+<body>
+    <div class="controles">
+        <button class="btn btn-print" onclick="window.print()">🖨️ Guardar como PDF / Imprimir</button>
+        <button class="btn btn-back" onclick="history.back()">⬅️ Volver al Panel</button>
+    </div>
+
+    <div class="header">
+        <h1>Bitácora Quincenal de Actividades</h1>
+        <p><strong>Proyecto:</strong> Asesoría Externa en Ciberseguridad y TI</p>
+        <p><strong>Cliente:</strong> SETUAN - Universidad Autónoma de Nayarit</p>
+        <p><strong>Periodo reportado:</strong> {{ bitacora.fecha_inicio|date:"d/m/Y" }} al {{ bitacora.fecha_fin|date:"d/m/Y" }}</p>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 12%;">Fecha</th>
+                <th style="width: 20%;">Categoría / Frente</th>
+                <th style="width: 58%;">Descripción de Actividades</th>
+                <th style="width: 10%; text-align: center;">Horas</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for act in actividades %}
+            <tr>
+                <td>{{ act.fecha|date:"d/m/Y" }}</td>
+                <td><strong>{{ act.get_categoria_display }}</strong></td>
+                <td>{{ act.descripcion }}</td>
+                <td style="text-align: center;">{{ act.horas_invertidas }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" style="text-align: center;">No hay actividades registradas en esta bitácora.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totales">
+        Total de horas invertidas en el periodo: {{ total_horas }} hrs.
+    </div>
+
+    <div class="firmas">
+        <div>
+            <div class="firma-linea"></div>
+            <p class="firma-texto">Firma del Asesor Externa</p>
+            <p class="firma-sub">Consultor de Ciberseguridad</p>
+        </div>
+        <div>
+            <div class="firma-linea"></div>
+            <p class="firma-texto">Vo.Bo. Comité SETUAN</p>
+            <p class="firma-sub">Revisión y Autorización de Pago</p>
+        </div>
+    </div>
+</body>
+</html>
