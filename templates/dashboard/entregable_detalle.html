@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle: {{ entregable.titulo }} - SETUAN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: { extend: { colors: { institucional: { dark: '#1a365d', light: '#2b6cb0', } } } }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+
+    <!-- Navegación -->
+    <nav class="bg-institucional-dark text-white shadow-lg">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center h-16">
+                <span class="font-bold text-xl tracking-wider">SETUAN | Ciberseguridad</span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <a href="{% url 'dashboard:home' %}" class="inline-flex items-center text-institucional-light hover:text-institucional-dark font-medium mb-6 transition">
+            &larr; Volver al Mando Central
+        </a>
+
+        <div class="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200">
+            <!-- Cabecera del Documento -->
+            <div class="px-8 py-6 border-b border-gray-200 bg-institucional-dark text-white">
+                <p class="text-sm font-semibold tracking-widest text-gray-300 uppercase mb-1">{{ entregable.get_tipo_display }}</p>
+                <h1 class="text-3xl font-bold">{{ entregable.titulo }}</h1>
+                <p class="mt-2 text-sm text-gray-200">Fecha de entrega: {{ entregable.fecha_entrega|date:"d/m/Y" }}</p>
+            </div>
+
+            <!-- Contenido -->
+            <div class="px-8 py-6 space-y-8">
+                
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 border-b-2 border-institucional-light pb-2 mb-4">Avances / Qué se hizo</h2>
+                    <p class="text-gray-700 whitespace-pre-line leading-relaxed">{{ entregable.resumen_ejecutivo|default:"Sin información registrada." }}</p>
+                </div>
+
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 border-b-2 border-institucional-light pb-2 mb-4">Riesgos / Qué se encontró</h2>
+                    <p class="text-gray-700 whitespace-pre-line leading-relaxed">{{ entregable.hallazgos_riesgos|default:"Sin información registrada." }}</p>
+                </div>
+
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 border-b-2 border-institucional-light pb-2 mb-4">Ajuste de prioridades / Qué sigue</h2>
+                    <p class="text-gray-700 whitespace-pre-line leading-relaxed">{{ entregable.proximos_pasos|default:"Sin información registrada." }}</p>
+                </div>
+
+                <!-- Bitácoras Vinculadas -->
+                {% if entregable.bitacoras_relacionadas.exists %}
+                <div class="mt-8 bg-gray-50 p-5 rounded-md border border-gray-200">
+                    <h3 class="font-bold text-gray-800 mb-3 text-sm uppercase tracking-wide">Bitácoras Quincenales Asociadas (Respaldo)</h3>
+                    <ul class="list-disc list-inside text-gray-600 space-y-1">
+                        {% for bitacora in entregable.bitacoras_relacionadas.all %}
+                        <li>{{ bitacora.titulo }} <span class="text-sm">({{ bitacora.fecha_inicio|date:"d/m/Y" }} - {{ bitacora.fecha_fin|date:"d/m/Y" }})</span></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </main>
+</body>
+</html>

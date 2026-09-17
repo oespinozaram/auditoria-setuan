@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mando Central - Auditoría SETUAN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Configuración rápida de colores institucionales en Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        institucional: {
+                            dark: '#1a365d',
+                            light: '#2b6cb0',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+
+    <!-- Navegación -->
+    <nav class="bg-institucional-dark text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="font-bold text-xl tracking-wider">SETUAN | Ciberseguridad</span>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="{% url 'dashboard:mapa_riesgos' %}" class="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium transition">
+                        Mapa de Riesgos
+                    </a>
+                    <a href="{% url 'admin:index' %}" class="bg-institucional-light hover:bg-blue-600 px-4 py-2 rounded-md text-sm font-medium transition">
+                        Panel de Captura
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <div class="mb-8">
+            <h1 class="text-2xl font-bold text-gray-900">Resumen Ejecutivo</h1>
+            <p class="text-gray-600">Fase actual: Mes 1 (Estabilización y Respuesta Inmediata)</p>
+        </div>
+
+        <!-- KPIs (Tarjetas de métricas) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow p-6 border-t-4 border-institucional-light">
+                <h3 class="text-gray-500 text-sm font-semibold uppercase tracking-wider">Activos Críticos</h3>
+                <p class="text-3xl font-bold text-gray-900 mt-2">{{ activos_criticos }} <span class="text-sm text-gray-500 font-normal">/ {{ total_activos }} totales</span></p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6 border-t-4 border-green-500">
+                <h3 class="text-gray-500 text-sm font-semibold uppercase tracking-wider">Entrevistas Completadas</h3>
+                <p class="text-3xl font-bold text-gray-900 mt-2">{{ entrevistas_realizadas }}</p>
+            </div>
+
+            <div class="bg-white rounded-lg shadow p-6 border-t-4 border-yellow-500">
+                <h3 class="text-gray-500 text-sm font-semibold uppercase tracking-wider">Próximo Hito</h3>
+                <p class="text-lg font-bold text-gray-900 mt-2">Cierre Mes 1</p>
+                <p class="text-sm text-gray-500 mt-1">Bitácora y Reporte Mensual</p>
+            </div>
+        </div>
+
+        <!-- Gráfica de distribución de tiempo -->
+        <div class="bg-white rounded-lg shadow mb-8 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <h2 class="text-lg font-bold text-gray-800">Distribución de Horas Invertidas</h2>
+            </div>
+            <div class="p-6 relative h-72 w-full">
+                <canvas id="horasChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Sección de Entregables -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <h2 class="text-lg font-bold text-gray-800">Línea de Tiempo de Entregables</h2>
+            </div>
+            <ul class="divide-y divide-gray-200 px-6 py-2">
+                {% for entregable in ultimos_entregables %}
+                <li class="py-4 flex justify-between items-center">
+                    <div>
+                        <p class="text-sm font-medium text-institucional-dark">{{ entregable.get_tipo_display }}</p>
+                        <p class="text-lg font-semibold text-gray-900">{{ entregable.titulo }}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm text-gray-500">Entrega: {{ entregable.fecha_entrega|date:"d/m/Y" }}</p>
+                        <a href="{% url 'dashboard:entregable_detalle' entregable.pk %}" class="inline-block mt-1 text-institucional-light hover:text-institucional-dark text-sm font-medium">Ver detalle &rarr;</a>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="py-4 text-gray-500 text-center">No hay entregables registrados aún.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+    </main>
+<script>
+        const ctx = document.getElementById('horasChart').getContext('2d');
+        const labels = {{ labels_grafica|safe }};
+        const data = {{ datos_grafica|safe }};
+
+        new Chart(ctx, {
+            type: 'bar', // Puedes cambiarlo a 'doughnut' o 'pie' si prefieres estilo dona
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Horas',
+                    data: data,
+                    backgroundColor: '#2b6cb0', // Azul institucional
+                    borderRadius: 4,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Horas Totales' }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

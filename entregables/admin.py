@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.template.loader import render_to_string
 from django.http import HttpResponse
-from .models import ActividadDiaria, BitacoraQuincenal, ReporteMensual
+from .models import ActividadDiaria, BitacoraQuincenal, Entregable
 
 
 @admin.register(ActividadDiaria)
@@ -39,7 +39,9 @@ class BitacoraQuincenalAdmin(admin.ModelAdmin):
         return HttpResponse(html)
 
 
-@admin.register(ReporteMensual)
-class ReporteMensualAdmin(admin.ModelAdmin):
-    list_display = ('mes_reportado',)
+@admin.register(Entregable)
+class EntregableAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'tipo', 'fecha_entrega')
+    list_filter = ('tipo', 'fecha_entrega')
+    search_fields = ('titulo',)
     filter_horizontal = ('bitacoras_relacionadas',)

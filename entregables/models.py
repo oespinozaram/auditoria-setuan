@@ -24,7 +24,6 @@ class ActividadDiaria(models.Model):
 
 
 class BitacoraQuincenal(models.Model):
-    """Respalda el pago por honorarios quincenales."""
     titulo = models.CharField(max_length=100, help_text="Ej: Primera Quincena Octubre 2026")
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField()
@@ -38,16 +37,30 @@ class BitacoraQuincenal(models.Model):
         return self.titulo
 
 
-class ReporteMensual(models.Model):
-    """Reporte breve: qué se hizo, qué se encontró, qué sigue."""
-    mes_reportado = models.CharField(max_length=50, help_text="Ej: Mes 1 - Estabilización y respuesta inmediata")
-    que_se_hizo = models.TextField(help_text="Resumen de actividades completadas.")
-    que_se_encontro = models.TextField(help_text="Hallazgos relevantes o incidentes.")
-    que_sigue = models.TextField(help_text="Próximos pasos para el siguiente mes.")
+# --- NUEVO MODELO CONSOLIDADO ---
+
+class TipoEntregable(models.TextChoices):
+    MENSUAL = 'MENSUAL', 'Reporte Mensual Breve'
+    CHECKPOINT_M4 = 'CHECKPOINT_M4', 'Checkpoint Transición (Mes 4)'
+    TRIMESTRAL = 'TRIMESTRAL', 'Revisión Trimestral (Mes 6, 9, 12)'
+    ANUAL = 'ANUAL', 'Reporte Ejecutivo Consolidado (Mes 12)'
+
+
+class Entregable(models.Model):
+    titulo = models.CharField(max_length=150, help_text="Ej: Reporte Mensual 1 o Checkpoint Fase 1")
+    tipo = models.CharField(max_length=20, choices=TipoEntregable.choices, default=TipoEntregable.MENSUAL)
+    fecha_entrega = models.DateField()
+
+    # Campos homologados para cubrir "Qué se hizo/Avances", "Hallazgos/Riesgos" y "Qué sigue/Ajustes"
+    resumen_ejecutivo = models.TextField(verbose_name="Avances / Qué se hizo", blank=True)
+    hallazgos_riesgos = models.TextField(verbose_name="Riesgos / Qué se encontró", blank=True)
+    proximos_pasos = models.TextField(verbose_name="Ajuste de prioridades / Qué sigue", blank=True)
+
     bitacoras_relacionadas = models.ManyToManyField(BitacoraQuincenal, blank=True)
 
     class Meta:
-        verbose_name_plural = "Reportes Mensuales"
+        verbose_name_plural = "Entregables y Reportes"
+        ordering = ['-fecha_entrega']
 
     def __str__(self):
-        return f"Reporte: {self.mes_reportado}"
+        return f"{self.get_tipo_display()} - {self.titulo}"

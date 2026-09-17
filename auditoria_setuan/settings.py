@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'cuestionarios.apps.CuestionariosConfig',
     'inventario.apps.InventarioConfig',
     'mapeo_accesos.apps.MapeoAccesosConfig',
-    'entregables.apps.EntregablesConfig'
+    'entregables.apps.EntregablesConfig',
+    'dashboard.apps.DashboardConfig'
 ]
 
 MIDDLEWARE = [
